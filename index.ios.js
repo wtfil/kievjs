@@ -2,6 +2,7 @@
 
 var React = require('react-native');
 var { TouchableOpacity, AppRegistry, StyleSheet, Image, Text, View } = React;
+var testData = require('./js/data');
 
 var MailItem = React.createClass({
 	getInitialState() {
@@ -48,9 +49,15 @@ var MailItem = React.createClass({
 			onResponderGrant: e => {
 				this.setState({ hold: true });
 			},
-			onResponderTerminate(e) { props.onResponderRelease(e) },
+			onResponderTerminate: e => {
+				this.setState({
+					hold: false,
+					offsetX: 0
+				});
+			},
 			onResponderRelease: e => {
 				this.setState({
+					open: this.state.offsetX === 0 && !this.state.open,
 					hold: false,
 					offsetX: 0
 				});
@@ -60,10 +67,14 @@ var MailItem = React.createClass({
 			return null;
 		}
 		if (this.state.snoozed) {
-			return <View style={[styles.preview, styles.previewSnoozed]}><Text>Snoozed</Text></View>;
+			return <View style={[styles.preview, styles.previewSnoozed]}>
+				<Text>Snoozed</Text>
+			</View>;
 		}
 		if (this.state.read) {
-			return <View style={styles.previewRead}><Text>Read</Text></View>;
+			return <View style={[styles.preview, styles.previewRead]}>
+				<Text>Read</Text>
+			</View>;
 		}
 		return <View {...props} >
 			<View style={[styles.marker, {backgroundColor: this.state.offsetX > 0 ? '#1e9c5a' : '#dc9d24'}]}/>
@@ -75,43 +86,46 @@ var MailItem = React.createClass({
 				<View style={styles.previewRight}>
 					<Text style={styles.subject}>{this.props.subject}</Text>
 					<Text style={styles.subSubject}>{this.props.subSubject}</Text>
-					<Text style={styles.previewText}>{this.props.message}</Text>
+					<Text style={styles.previewText}>
+						{this.state.open ?
+							this.props.message :
+							(this.props.message.replace(/\s/g, ' ').slice(0, 40) + '...')
+						}
+					</Text>
 				</View>
 			</View>
 		</View>;
 	}
 });
 
-var testItems = [
-	{
-		mailLogo: 'https://s-media-cache-ak0.pinimg.com/236x/9e/8d/6e/9e8d6e0b9932d32d751dc19849efaee1.jpg',
-		subject: 'Unread messages in frontend-ua',
-		subSubject: 'Gitter Notifications',
-		message: 'You have under messages frontend-ua 9 undread messages'
-	},
-	{
-		mailLogo: 'https://s-media-cache-ak0.pinimg.com/236x/9e/8d/6e/9e8d6e0b9932d32d751dc19849efaee1.jpg',
-		subject: 'Unread messages in frontend-ua',
-		subSubject: 'Gitter Notifications',
-		message: 'You have under messages frontend-ua 9 undread messages'
-	}
-];
-
 var Inbox = React.createClass({
 
 	getInitialState() {
-		return {items: testItems};
+		return {items: testData};
 	},
 
 	render() {
-		return <View style={styles.container} onMoveShouldSetResponder={() => true}>
+		var props = {
+			style: styles.container,
+			onMoveShouldSetResponder: () => true,
+			onResponderMove: e => {
+				var t = e.touchHistory.touchBank[1];
+				var scroll = t.currentPageY - t.startPageY;
+				this.setState({
+					scroll: scroll < 0 ? scroll : 0
+				});
+			}
+		};
+		return <View {...props} >
 			<View style={styles.inboxHeader}>
 				<Text style={styles.inboxHeaderText}>Today</Text>
 			</View>
-			<View>
-				{this.state.items.map((item, index) =>
-					<MailItem {...item} />
-				 )}
+			<View style={{overflow: 'hidden'}}>
+				<View style={{top: this.state.scroll}}>
+					{this.state.items.map((item, index) =>
+						<MailItem {...item} />
+				 	 )}
+				</View>
 			</View>
 		</View>
 	}
@@ -182,10 +196,8 @@ var styles = StyleSheet.create({
 	},
 	previewText: {
 		marginTop: 3,
-		flexWrap: 'nowrap',
 		fontSize: 13,
-		color: '#767676',
-		width: 1000
+		color: '#767676'
 	}
 });
 
