@@ -1,8 +1,10 @@
 'use strict';
 
 var React = require('react-native');
-var { TouchableOpacity, AppRegistry, StyleSheet, Image, Text, View } = React;
+var { AppRegistry, StyleSheet, Image, Text, View } = React;
+
 var testData = require('./js/data');
+var Examples = require('./js/examples');
 
 var MailItem = React.createClass({
 	getInitialState() {
@@ -131,6 +133,12 @@ var Inbox = React.createClass({
 	}
 });
 
+var App = React.createClass({
+	render() {
+		return <Examples/>
+	}
+});
+
 var styles = StyleSheet.create({
 	container: {
 		flex: 1,
@@ -201,4 +209,4 @@ var styles = StyleSheet.create({
 	}
 });
 
-AppRegistry.registerComponent('KievjsDemo', () => Inbox);
+AppRegistry.registerComponent('KievjsDemo', () => App);
