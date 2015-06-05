@@ -6,6 +6,7 @@ var {
 	MapView,
 	PickerIOS,
 	SegmentedControlIOS,
+	ScrollView,
 	SliderIOS,
 	SwitchIOS,
 	TabBarIOS,
@@ -31,7 +32,7 @@ var Examples = React.createClass({
 	},
 
 	render() {
-		return <View style={styles.main}>
+		return <ScrollView>
 
 			<ActivityIndicatorIOS
 				animating={true}
@@ -112,14 +113,11 @@ var Examples = React.createClass({
 				onDateChange={this.onDateChange}
 			/>
 
-		</View>
+		</ScrollView>
 	}
 });
 
 var styles = StyleSheet.create({
-	main: {
-		paddingTop: 30
-	},
 	title: {
 		textAlign: 'center'
 	},

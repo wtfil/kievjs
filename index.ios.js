@@ -6,7 +6,6 @@ var { AppRegistry, ScrollView, Navigator, TabBarIOS } = React;
 var Examples = require('./js/examples');
 var Inbox = require('./js/inbox');
 
-
 var routes = {
 	examples: {
 		component: Examples,
@@ -41,11 +40,10 @@ var App = React.createClass({
 	render() {
 		return <Navigator
 			style={{flex: 1}}
-			initialRoute={routes.examples}
+			initialRoute={routes.inbox}
 			renderScene={this.renderScene}
 		/>
 	}
 });
-
 
 AppRegistry.registerComponent('KievjsDemo', () => App);

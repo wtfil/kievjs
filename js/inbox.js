@@ -1,5 +1,5 @@
 var React = require('react-native');
-var { StyleSheet, Image, Text, View } = React;
+var { StyleSheet, Image, Text, View, ListView } = React;
 var testData = require('./data');
 
 var MailItem = React.createClass({
@@ -76,7 +76,7 @@ var MailItem = React.createClass({
 		}
 		return <View {...props} >
 			<View style={[styles.marker, {backgroundColor: this.state.offsetX > 0 ? '#1e9c5a' : '#dc9d24'}]}/>
-			<View style={[ styles.previewMovable, { left: this.state.offsetX} ]}>
+			<View style={[styles.previewMovable, { left: this.state.offsetX} ]}>
 				<Image
 					style={styles.siteImage}
 					source={{uri: this.props.mailLogo}}
@@ -99,40 +99,28 @@ var MailItem = React.createClass({
 var Inbox = React.createClass({
 
 	getInitialState() {
-		return {items: testData};
+		var ds = new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2
+		});
+		return {
+			items: ds.cloneWithRows(testData)
+		};
 	},
 
 	render() {
-		var props = {
-			style: styles.container,
-			onMoveShouldSetResponder: () => true,
-			onResponderMove: e => {
-				var t = e.touchHistory.touchBank[1];
-				var scroll = t.currentPageY - t.startPageY;
-				this.setState({
-					scroll: scroll < 0 ? scroll : 0
-				});
-			}
-		};
-		return <View {...props} >
+		return <View>
 			<View style={styles.inboxHeader}>
 				<Text style={styles.inboxHeaderText}>Today</Text>
 			</View>
-			<View style={{overflow: 'hidden'}}>
-				<View style={{top: this.state.scroll}}>
-					{this.state.items.map((item, index) =>
-						<MailItem {...item} />
-				 	 )}
-				</View>
-			</View>
+			<ListView
+				dataSource={this.state.items}
+				renderRow={data => <MailItem {...data} /> }
+			/>
 		</View>
 	}
 });
 
 var styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	inboxHeader: {
 		padding: 10,
 		paddingTop: 40,
