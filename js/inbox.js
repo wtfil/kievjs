@@ -1,5 +1,5 @@
 var React = require('react-native');
-var { StyleSheet, Image, Text, View, ListView } = React;
+var { LayoutAnimation, StyleSheet, Image, Text, View, ListView } = React;
 var testData = require('./data');
 
 var MailItem = React.createClass({
@@ -12,12 +12,12 @@ var MailItem = React.createClass({
 		}
 	},
 	onMarkAsRead() {
-		this.setState({read: true});
-		setTimeout(this.setState.bind(this, {collapced: true}), 2000);
+		this.setState({collapced: true});
+		LayoutAnimation.configureNext(easeInEaseOut);
+		setTimeout(this.setState.bind(this, {hidden: true}), easeInEaseOut.duration);
 	},
 	onMarkAsSnooze() {
-		this.setState({snoozed: true});
-		setTimeout(this.setState.bind(this, {collapced: true}), 2000);
+		this.onMarkAsRead();
 	},
 	render() {
 		var props = {
@@ -30,9 +30,9 @@ var MailItem = React.createClass({
 				var t = e.touchHistory.touchBank[1];
 				var offsetX = t.currentPageX - t.startPageX;
 
-				if (offsetX > 100) {
+				if (offsetX > 150) {
 					this.onMarkAsRead();
-				} else if (offsetX < -100) {
+				} else if (offsetX < -150) {
 					this.onMarkAsSnooze();
 				}
 				this.setState({
@@ -61,37 +61,29 @@ var MailItem = React.createClass({
 				});
 			}
 		};
-		if (this.state.collapced) {
+		if (this.state.hidden) {
 			return null;
-		}
-		if (this.state.snoozed) {
-			return <View style={[styles.preview, styles.previewSnoozed]}>
-				<Text>Snoozed</Text>
-			</View>;
-		}
-		if (this.state.read) {
-			return <View style={[styles.preview, styles.previewRead]}>
-				<Text>Read</Text>
-			</View>;
 		}
 		return <View {...props} >
 			<View style={[styles.marker, {backgroundColor: this.state.offsetX > 0 ? '#1e9c5a' : '#dc9d24'}]}/>
-			<View style={[styles.previewMovable, { left: this.state.offsetX} ]}>
-				<Image
-					style={styles.siteImage}
-					source={{uri: this.props.mailLogo}}
-				/>
-				<View style={styles.previewRight}>
-					<Text style={styles.subject}>{this.props.subject}</Text>
-					<Text style={styles.subSubject}>{this.props.subSubject}</Text>
-					<Text style={styles.previewText}>
-						{this.state.open ?
-							this.props.message :
-							(this.props.message.replace(/\s/g, ' ').slice(0, 40) + '...')
-						}
-					</Text>
+			{!this.state.collapced &&
+				<View style={[styles.previewMovable, { left: this.state.offsetX} ]}>
+					<Image
+						style={styles.siteImage}
+						source={{uri: this.props.mailLogo}}
+					/>
+					<View style={styles.previewRight}>
+						<Text style={styles.subject}>{this.props.subject}</Text>
+						<Text style={styles.subSubject}>{this.props.subSubject}</Text>
+						<Text style={styles.previewText}>
+							{this.state.open ?
+								this.props.message :
+								(this.props.message.replace(/\s/g, ' ').slice(0, 35) + '...')
+							}
+						</Text>
+					</View>
 				</View>
-			</View>
+			}
 		</View>;
 	}
 });
@@ -186,5 +178,17 @@ var styles = StyleSheet.create({
 		color: '#767676'
 	}
 });
+
+var easeInEaseOut = {
+	duration: 300,
+	create: {
+	    type: LayoutAnimation.Types.easeInEaseOut,
+	    property: LayoutAnimation.Properties.scaleXY,
+	},
+	update: {
+	    delay: 100,
+	    type: LayoutAnimation.Types.easeInEaseOut,
+	}
+};
 
 module.exports = Inbox;
