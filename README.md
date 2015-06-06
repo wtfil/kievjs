@@ -9,3 +9,6 @@ This is a demo of react-native for KievJs meetup 2015
 * `npm start`
 * Open `KievjsDemo.xcodeproj` with `xcode`
 * cmd+R
+
+![image](https://cloud.githubusercontent.com/assets/1421128/8018879/3c323084-0c3a-11e5-87a3-584b1cab1e1d.png)
+
